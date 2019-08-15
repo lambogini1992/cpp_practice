@@ -79,32 +79,40 @@ NODE_LL *scan_empty_node(NODE_LL *start_node, uint8_t *count, bool *dir)
 
 NODE_LL *check_car(const char *card_id, NODE_LL *start_node, uint8_t *count, bool *dir)
 {
-	NODE_LL *tmp_node;
+	NODE_LL *tmp_node_clk;
+	NODE_LL *tmp_node_aclk;
 	uint8_t count_clockwise;
 	uint8_t count_aclockwise;
 
 	count_aclockwise 	= 0;
 	count_clockwise 	= 0;
 
-	tmp_node 		= start_node;
+	tmp_node_clk 		= start_node;
 	while(1)
 	{
-		if(strcmp(tmp_node->data_card, card_id) == 0)
+		if(tmp_node_clk->has_car == true)
 		{
-			break;
+			if(strcmp(tmp_node_clk->data_card, card_id) == 0)
+			{
+				break;
+			}
 		}
-		tmp_node = tmp_node->next;
+		tmp_node_clk = tmp_node_clk->next;
 		count_clockwise++;
 	}
 
-	tmp_node 		= start_node;
+	tmp_node_aclk 		= start_node;
 	while(1)
 	{
-		if(strcmp(tmp_node->data_card, card_id) == 0)
+		if(tmp_node_aclk->has_car == true)
 		{
-			break;
+			if(strcmp(tmp_node_aclk->data_card, card_id) == 0)
+			{
+				break;
+			}
+			
 		}
-		tmp_node = tmp_node->prev;
+		tmp_node_aclk = tmp_node_aclk->prev;
 		count_aclockwise++;
 	}
 
@@ -112,14 +120,14 @@ NODE_LL *check_car(const char *card_id, NODE_LL *start_node, uint8_t *count, boo
 	{
 		*dir = true;
 		*count = count_clockwise;
+		return tmp_node_clk;
 	}
 	else
 	{
 		*dir = false;
 		*count = count_aclockwise;
+		return tmp_node_aclk;
 	}
-
-	return tmp_node;
 }
 
 void put_car(NODE_LL *node, const char *card_id)
@@ -139,7 +147,7 @@ void get_car(NODE_LL *node)
 }
 
 
-void park_car_proc(NODE_LL *start_node, const char *card_id)
+NODE_LL *park_car_proc(NODE_LL *start_node, const char *card_id)
 {
 	NODE_LL *tmp_node;
 	uint8_t count;
@@ -163,18 +171,21 @@ void park_car_proc(NODE_LL *start_node, const char *card_id)
 
 	printf("node %i has car with card id is %s\n", start_node->node_id, start_node->data_card);
 	printf(">>>>>>>>>>>END PARKING CAR PROCESS<<<<<<<<<<<<\n");
+	return start_node;
 }
 
-void take_car_proc(NODE_LL *start_node, const char *card_id)
+NODE_LL *take_car_proc(NODE_LL *start_node, const char *card_id)
 {
 	NODE_LL *tmp_node;
 	uint8_t count;
 	bool dir;
 
 	printf(">>>>>>>>>BEGINNING OF TAKING A CAR PROCESS<<<<<<<<<<<<\n");
+	printf("node %i is start_node\n",start_node->node_id);
 
 	tmp_node = start_node;
 	start_node = check_car(card_id, tmp_node, &count, &dir);
+	printf("node %i is start_node\n",start_node->node_id);
 
 	if(dir == true)
 	{
@@ -188,20 +199,23 @@ void take_car_proc(NODE_LL *start_node, const char *card_id)
 	get_car(start_node);
 	printf("get a car from node %i\n",start_node->node_id);
 	printf(">>>>>>>>>END OF TAKING A CAR PROCESS<<<<<<<<<<<<\n");
+	return start_node;
 }
+
+NODE_LL *node_1 = NULL;
+NODE_LL *node_2 = NULL;
+NODE_LL *node_3 = NULL;
+NODE_LL *node_4 = NULL;
+NODE_LL *node_5 = NULL;
+
+NODE_LL *start_node = NULL;
 
 int main(int argc, char const *argv[])
 {
 	char card_id[20];
 	char cmd[4];
 
-	NODE_LL *node_1 = NULL;
-	NODE_LL *node_2 = NULL;
-	NODE_LL *node_3 = NULL;
-	NODE_LL *node_4 = NULL;
-	NODE_LL *node_5 = NULL;
 
-	NODE_LL *start_node = NULL;
 
 	node_1 = create_node(1);
 	node_2 = create_node(2);
@@ -222,19 +236,19 @@ int main(int argc, char const *argv[])
 		printf("\nPlease choose mode\n");
 		scanf("%s", cmd);
 		printf("%s\n", cmd);
-		if(strcmp(cmd, "park") == 0)
+		if(strcmp(cmd, "p") == 0)
 		{
 			printf("Please enter card id\n");
 			scanf("%s", card_id);
 			printf("%s\n", card_id);
-			park_car_proc(start_node, (const char *)cmd);
+			start_node = park_car_proc(start_node, (const char *)card_id);
 		}
-		else if(strcmp(cmd, "take") == 0)
+		else if(strcmp(cmd, "t") == 0)
 		{
 			printf("Please enter card id\n");
 			scanf("%s", card_id);
 			printf("%s\n", card_id);
-			take_car_proc(start_node, (const char *)cmd);
+			start_node = take_car_proc(start_node, (const char *)card_id);
 		}
 	}
 
