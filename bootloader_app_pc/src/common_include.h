@@ -14,5 +14,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define DEBUG
 
 #endif /* COMMON_INCLUDE_H_ */

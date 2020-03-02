@@ -8,13 +8,15 @@
  ============================================================================
  */
 #include "file_handle.h"
+#include "boot_proc.h"
 
 int main(int argc, char **argv) {
 
 
-	if(argc < 2)
+	if(argc < 3)
 	{
-		printf("Not enough data input\n\n");
+		printf("Not enough data input: USB_PORT TYPE_FILE FILE_DIR\n\n");
+		return -1;
 	}
 
 	return 0;

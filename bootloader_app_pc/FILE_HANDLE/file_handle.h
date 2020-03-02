@@ -7,6 +7,9 @@
 #define FILE_HANDLE_TYPE_HEX				1
 #define FILE_HANDLE_NO_TYPE					2
 
+#define FILE_HANDLE_PROC_SUCCESS			1
+#define FILE_HANDLE_PROC_FAIL				-1
+
 typedef struct _file_data_output_
 {
 	uint8_t *data;
