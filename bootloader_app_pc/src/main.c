@@ -9,6 +9,7 @@
  */
 #include "file_handle.h"
 #include "boot_proc.h"
+#include "serial_port.h"
 
 int main(int argc, char **argv) {
 
