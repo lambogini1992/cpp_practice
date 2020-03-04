@@ -16,6 +16,6 @@ typedef struct _file_data_output_
 	uint64_t data_len;
 }FILE_DATA_OUTPUT;
 
-uint8_t file_handle_check_type(char *file_type);
+int8_t file_handle_check_type(char *file_type);
 FILE_DATA_OUTPUT *file_handle_type_bin(char *path_dir_file);
 #endif

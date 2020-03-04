@@ -1,9 +1,10 @@
 #include <sys/stat.h>
-#include "./file_handle.h"
+#include <inttypes.h>
+#include "file_handle.h"
 
 static const char *file_type_str[]=
 {
-		"bin",
+		"binary",
 		"hex",
 		0
 };
@@ -44,7 +45,7 @@ static FILE_DATA_OUTPUT *file_handle_remove_unnecessary_char(char *file_name)
 	FILE *fhandle;
 	char *rdata;
 	char *wdata;
-	uint8_t idx;
+	uint64_t idx;
 
 	if(0 == stat((const char *)file_name, &st_file))
 	{
@@ -53,6 +54,10 @@ static FILE_DATA_OUTPUT *file_handle_remove_unnecessary_char(char *file_name)
 		{
 			return NULL;
 		}
+#ifdef DEBUG
+		printf("Size of file %s is ", file_name);
+		printf("%" PRIu64 "\n", tmp_fsiz);
+#endif
 	}
 
 	rdata = malloc(tmp_fsiz);
@@ -65,10 +70,18 @@ static FILE_DATA_OUTPUT *file_handle_remove_unnecessary_char(char *file_name)
 		return NULL;
 	}
 
-	while(fgets(rdata, tmp_fsiz, fhandle) != NULL);
+	(void)fgets(rdata, tmp_fsiz, fhandle);
+
 
 	fclose(fhandle);
-
+#ifdef DEBUG
+		printf("Data of file %s:\n", file_name);
+		for(idx = 0; idx < tmp_fsiz; idx++)
+		{
+			printf("%c", rdata[idx]);
+		}
+		printf("\n\n");
+#endif
 	wdata = malloc(tmp_fsiz);
 	memset(wdata, 0, tmp_fsiz);
 

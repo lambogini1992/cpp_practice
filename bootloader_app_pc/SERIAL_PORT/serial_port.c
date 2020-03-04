@@ -1,4 +1,4 @@
-#include "./serial_port.h"
+#include "serial_port.h"
 
 static struct termios tty_ser;;
 static int file_desc;
@@ -16,8 +16,8 @@ uint8_t serial_port_init(char *port_type)
 		return SERIAL_PORT_PROC_FAIL;
 	}
 
-	cfgetispeed(&tty_ser, SERIAL_PORT_PROC_SPEED);
-	cfgetospeed(&tty_ser, SERIAL_PORT_PROC_SPEED);
+	cfsetospeed(&tty_ser, SERIAL_PORT_PROC_SPEED);
+	cfsetispeed(&tty_ser, SERIAL_PORT_PROC_SPEED);
 
 	tty_ser.c_cflag &= ~PARENB;
 	tty_ser.c_cflag &= ~CSTOPB;
@@ -56,11 +56,9 @@ void serial_port_close(void)
 
 uint8_t serial_port_read(char *rbuff)
 {
+	memset(rbuff, 0, SERIAL_PORT_PROC_RECV_MAX);
 	tcflush(file_desc, TCIFLUSH);
-
-	(void)read(file_desc, &rbuff, SERIAL_PORT_PROC_RECV_MAX);
-
-	return SERIAL_PORT_PROC_SUCCESS;
+	return (uint8_t)read(file_desc, &rbuff, SERIAL_PORT_PROC_RECV_MAX);
 }
 
 uint8_t serial_port_write(char *wbuff, uint16_t buff_len)

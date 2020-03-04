@@ -23,7 +23,6 @@
 
 #define BOOT_PROC_DATA_TRANS_FAIL_MAX_COUNT	5
 
-int8_t boot_process_data_handle(uint8_t *data, uint64_t data_len);
-
+int8_t boot_process_data_handle(uint8_t *data, uint16_t data_len);
 
 #endif

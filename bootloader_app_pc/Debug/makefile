@@ -29,7 +29,7 @@ all: bootloader_app_pc
 bootloader_app_pc: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc  -o "bootloader_app_pc" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/anhpt26/git_clone/cpp_practice/bootloader_app_pc/BOOT_PROC" -L"/home/anhpt26/git_clone/cpp_practice/bootloader_app_pc/COMMON_INCLUDE" -L"/home/anhpt26/git_clone/cpp_practice/bootloader_app_pc/FILE_HANDLE" -L"/home/anhpt26/git_clone/cpp_practice/bootloader_app_pc/SERIAL_PORT" -o "bootloader_app_pc" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

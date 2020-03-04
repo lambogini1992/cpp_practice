@@ -1,4 +1,4 @@
-#include "./boot_proc.h"
+#include "boot_proc.h"
 
 typedef struct _boot_proc_data_
 {
@@ -11,17 +11,18 @@ typedef struct _boot_proc_data_
 
 static BOOT_PROC_DATA boot_data;
 static void boot_process_check_sum_data(BOOT_PROC_DATA *boot_data);
-static int8_t boot_process_separate_data_file(uint8_t *data, uint16_t data_len, BOOT_PROC_DATA *boot_data);
+static int8_t *boot_process_separate_data_file(uint8_t *data, uint16_t data_len, BOOT_PROC_DATA *boot_data);
 static int8_t boot_process_trans_data(BOOT_PROC_DATA boot_data);
 
 
 int8_t boot_process_data_handle(uint8_t *data, uint16_t data_len)
 {
 	memset(&boot_data, 0, sizeof(BOOT_PROC_DATA));
+	boot_data.add_flash = 0;
 
 	while(boot_data.add_flash < data_len)
 	{
-		if(boot_process_separate_data_file(data, data_len, &(boot_data)) == BOOT_PROC_FAIL)
+		if(boot_process_separate_data_file((uint8_t *)data, data_len, &boot_data) == BOOT_PROC_FAIL)
 		{
 			free(boot_data.data_flash);
 			return BOOT_PROC_FAIL;
@@ -75,7 +76,7 @@ static int8_t *boot_process_separate_data_file(uint8_t *data, uint16_t data_len,
 
 	if(data_len == 0)
 	{
-		return BOOT_PROC_FAIL;
+		return (int8_t)BOOT_PROC_FAIL;
 	}
 
 	if((data_len - boot_data->add_flash) < BOOT_PROC_MAX_DATA_LEN_FILE)
@@ -102,7 +103,7 @@ static int8_t *boot_process_separate_data_file(uint8_t *data, uint16_t data_len,
 		boot_data->msg_lenght = BOOT_PROC_MAX_DATA_LEN_FILE + 6;
 	}
 
-	return BOOT_PROC_SUCCESS;
+	return (int8_t)BOOT_PROC_SUCCESS;
 }
 
 static int8_t boot_process_trans_data(BOOT_PROC_DATA boot_data)
@@ -111,6 +112,7 @@ static int8_t boot_process_trans_data(BOOT_PROC_DATA boot_data)
 	uint16_t idx;
 	char recv_buff[SERIAL_PORT_PROC_RECV_MAX];
 	uint8_t fail_count;
+	int8_t ret_val;
 
 	fail_count = 0;
 	boot_trans = (uint8_t *)malloc(boot_data.msg_lenght);
@@ -120,7 +122,7 @@ static int8_t boot_process_trans_data(BOOT_PROC_DATA boot_data)
 	boot_trans[2] = (uint8_t)(boot_data.add_flash >> 8);
 	boot_trans[3] = (uint8_t)(boot_data.add_flash);
 
-	for(idx = 4; idx < (boot_data->msg_lenght - BOOT_PROC_MAX_CHECKSUM_LEN); idx++)
+	for(idx = 4; idx < (boot_data.msg_lenght - BOOT_PROC_MAX_CHECKSUM_LEN); idx++)
 	{
 		boot_trans[idx] = boot_data.data_flash[idx - 4];
 	}
@@ -131,10 +133,11 @@ static int8_t boot_process_trans_data(BOOT_PROC_DATA boot_data)
 	while(1)
 	{
 		(void)serial_port_write(boot_trans, boot_data.msg_lenght);
-		serial_port_read(recv_buff);
+		(void)serial_port_read(recv_buff);
 
 		if(strcmp(recv_buff, BOOT_PROC_DATA_TRANS_SUCCESS) == 0)
 		{
+			ret_val = BOOT_PROC_SUCCESS;
 			break;
 		}
 		else if(strcmp(recv_buff, BOOT_PROC_DATA_TRANS_FAIL) == 0)
@@ -142,14 +145,16 @@ static int8_t boot_process_trans_data(BOOT_PROC_DATA boot_data)
 			fail_count++;
 			if(fail_count == BOOT_PROC_DATA_TRANS_FAIL_MAX_COUNT)
 			{
-				return BOOT_PROC_FAIL;
+				ret_val = BOOT_PROC_FAIL;
+				break;
 			}
 		}
 		else if(strcmp(recv_buff, BOOT_PROC_FLASH_MEM_ERROR) == 0)
 		{
-			return BOOT_PROC_FAIL;
+			ret_val = BOOT_PROC_FAIL;
+			break;
 		}
 	}
-
-	return BOOT_PROC_SUCCESS;
+	free(boot_trans);
+	return (int8_t)ret_val;
 }

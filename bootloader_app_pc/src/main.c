@@ -8,15 +8,15 @@
  ============================================================================
  */
 #include "common_include.h"
-#include "../FILE_HANDLE/file_handle.h"
-#include "../BOOT_PROC/boot_proc.h"
-#include "../SERIAL_PORT/serial_port.h"
+#include "file_handle.h"
+#include "boot_proc.h"
+#include "serial_port.h"
 
 int main(int argc, char **argv)
 {
 
 	FILE_DATA_OUTPUT *file_data;
-
+#ifndef DEBUG
 	if(argc < 3)
 	{
 		printf("Not enough data input: USB_PORT TYPE_FILE FILE_DIR\n\n");
@@ -39,11 +39,45 @@ int main(int argc, char **argv)
 	if(boot_process_data_handle(file_data->data, file_data->data_len) == BOOT_PROC_FAIL)
 	{
 		printf("Boot process is fail\n\n");
+	}
+
+	free(file_data->data);
+	free(file_data);
+	serial_port_close();
+#else
+	uint16_t idx;
+	if(argc < 1)
+	{
+		printf("Not enough data input: FILE_DIR\n\n");
 		return -1;
+	}
+
+	file_data = file_handle_type_bin(argv[1]);
+	if(file_data == NULL)
+	{
+		printf("Application cannot handle this file\n\n");
+		return -1;
+	}
+	else
+	{
+		printf("DATA OF FILE IN HEX:\n\n");
+		for(idx = 0; idx < file_data->data_len; idx++)
+		{
+			printf
+		}
 	}
 
 	free(file_data->data);
 	free(file_data);
 
+#endif
 	return 0;
 }
+/*
+ * main.c
+ *
+ *  Created on: Mar 3, 2020
+ *      Author: root
+ */
+
+
