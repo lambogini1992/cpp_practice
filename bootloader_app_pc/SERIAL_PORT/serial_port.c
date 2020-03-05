@@ -60,11 +60,14 @@ uint8_t serial_port_read(char *rbuff)
 {
 	uint8_t len_rdata = 0;
 
-	memset(rbuff, 0, SERIAL_PORT_PROC_RECV_MAX);
-
+//	memset(rbuff, 0, SERIAL_PORT_PROC_RECV_MAX);
+	fcntl(file_desc, F_SETFL, 0);
 	tcflush(file_desc, TCIFLUSH);
 
-	len_rdata = (uint8_t)read(file_desc, rbuff, SERIAL_PORT_PROC_RECV_MAX);
+	while(len_rdata == 0)
+	{
+		len_rdata = (uint8_t)read(file_desc, rbuff, 4);
+	}
 
 	return len_rdata;
 }
