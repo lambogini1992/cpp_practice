@@ -1,13 +1,15 @@
 #include "serial_port.h"
 
 static struct termios tty_ser;;
-static int file_desc;
+//static int file_desc;
+int file_desc;
 
 uint8_t serial_port_init(char *port_type)
 {
 	char sys_com[50] = {0x00};
 
 	sprintf(sys_com, "%s%s", SERIAL_PORT_CHANGE_PERMISSION, port_type);
+	system(sys_com);
 
 	file_desc = open(port_type, O_RDWR | O_NOCTTY | O_NDELAY);
 	if(file_desc == -1)
@@ -56,9 +58,15 @@ void serial_port_close(void)
 
 uint8_t serial_port_read(char *rbuff)
 {
+	uint8_t len_rdata = 0;
+
 	memset(rbuff, 0, SERIAL_PORT_PROC_RECV_MAX);
+
 	tcflush(file_desc, TCIFLUSH);
-	return (uint8_t)read(file_desc, &rbuff, SERIAL_PORT_PROC_RECV_MAX);
+
+	len_rdata = (uint8_t)read(file_desc, rbuff, SERIAL_PORT_PROC_RECV_MAX);
+
+	return len_rdata;
 }
 
 uint8_t serial_port_write(char *wbuff, uint16_t buff_len)
